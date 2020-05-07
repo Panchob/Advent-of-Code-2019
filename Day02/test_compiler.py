@@ -1,5 +1,5 @@
 import unittest
-from incode_compiler import compile
+from intCode_compiler import compile
 
 class TestDay2(unittest.TestCase):
     def setUp(self):

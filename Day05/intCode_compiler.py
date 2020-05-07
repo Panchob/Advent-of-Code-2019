@@ -5,16 +5,17 @@ FIRST_PARAM = 0
 SECOND_PARAM = 1
 THIRD_PARAM = 2
 
+
 def positions(l, i):
     # Append in the same order as the values in l. By using
     # modulo, if the length of the instruction is smaller than
     # the number of values, 0 is returned.
     modes = []
-    modes.append((l[i]//100) %10)
-    modes.append((l[i]//1000) %10)
-    modes.append((l[i]//10000) %10)
+    modes.append((l[i]//100) % 10)
+    modes.append((l[i]//1000) % 10)
+    modes.append((l[i]//10000) % 10)
 
-    # Start at one since the current index is currently on 
+    # Start at one since the current index is currently on
     # the instruction and not the first value. I reuse the same array
     # here to store the position (immediate or not) of the values.
     # Ex: j is 0 and position is 1 for [1002, 4, 3, 33]
@@ -39,14 +40,14 @@ def compile(l, input):
 
     while i < len(l):
         instruction = l[i] % 10
-        # 9 - End (Will change if I have to realy use 9)
+        # 9 - End (Will change if I have to really use 9)
         if instruction == 9:
             break
 
         pos = positions(l, i)
 
         # 1 - addition
-        if  instruction == 1:
+        if instruction == 1:
             l[pos[THIRD_PARAM]] = l[pos[FIRST_PARAM]] + l[pos[SECOND_PARAM]]
             increment = 4
         # 2 - multiplication
