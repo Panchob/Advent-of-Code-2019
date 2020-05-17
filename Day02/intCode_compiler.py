@@ -32,6 +32,7 @@ def compile(l):
     return l
 
 
-with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
-    l = list(map(int, f.read().split(",")))
-    print(compile(l)[0])
+if __name__ == '__main__': 
+    with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
+        l = list(map(int, f.read().split(",")))
+        print(compile(l)[0])
