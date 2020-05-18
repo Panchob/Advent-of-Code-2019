@@ -1,5 +1,5 @@
 import unittest
-from day3 import positions, minDistance
+from day3 import *
 
 class TestDay3(unittest.TestCase):
     def setUp(self):
