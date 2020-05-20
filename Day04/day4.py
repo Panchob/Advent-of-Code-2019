@@ -46,21 +46,21 @@ def isValidPasswordWithMatchingRule(password):
     # is at the end of the password ex: 111122
     return (isIncreasing and (hasValidGroup or sequenceSize == 2))
 
+if __name__ == "__main__":a
+    part1 = 0
+    part2 = 0
 
-part1 = 0
-part2 = 0
+    for n in range(START_VALUE, END_VALUE):
+        # Change each number into an array
+        password = [x for x in str(n)]
 
-for n in range(START_VALUE, END_VALUE):
-    # Change each number into an array
-    password = [x for x in str(n)]
+        # PART ONE
+        if isValidPassword(password):
+            part1 += 1
 
-    # PART ONE
-    if isValidPassword(password):
-        part1 += 1
+        # PART TWO
+        if isValidPasswordWithMatchingRule(password):
+            part2 += 1
 
-    # PART TWO
-    if isValidPasswordWithMatchingRule(password):
-        part2 += 1
-
-print("PART ONE:", part1)
-print("PART TWO:", part2)
+    print("PART ONE:", part1)
+    print("PART TWO:", part2)
