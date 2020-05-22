@@ -97,8 +97,8 @@ def compile(l, input):
 
     return l
 
+if __name__ == "__main__":
+    with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
+        l1 = list(map(int, f.read().split(",")))
 
-with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
-    l1 = list(map(int, f.read().split(",")))
-
-    compile(l1, 5)
+        compile(l1, 5)
