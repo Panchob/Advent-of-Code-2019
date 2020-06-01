@@ -24,7 +24,23 @@ def turnLeft(i):
     if i < 0:
         i = 3
     return i
-    
+
+def fillOxygen(oxygens, world):
+    nextIteration = []
+
+    while oxygens:
+        tile = oxygens.pop()
+        x, y = tile
+        adjacents = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+        for adjacent in adjacents:
+            i, j = adjacent
+            if world[(i, j)] == "path" or world[(i, j)] == "empty":
+                world[(i, j)] = "oxygen"
+                nextIteration.append(adjacent)
+
+    oxygens.extend(nextIteration)
+                    
+
 if __name__ == "__main__":
     with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
         l = f.read().split(",")
@@ -36,17 +52,18 @@ if __name__ == "__main__":
     robot = Intcode(memory)
     current = (25,25)
     start = (25,25)
-    world = {current: "empty"}
+    world = {current: "start"}
     path = [start]
     isGoalReached = False
-    goal = None
     direction = 0
+    time = -1
+    oxygens = []
 
-    screen = pygame.display.set_mode([600, 600])
+    screen = pygame.display.set_mode([500, 500])
     tiles = {}
-    tileTypes = ["empty", "wall", "robot", "start", "path", "goal"]
-    tileColors = ["white", "black", "blue", "orange", "green", "red"]
-    for i in range(6):
+    tileTypes = ["empty", "wall", "robot", "start", "path", "oxygen"]
+    tileColors = ["white", "black", "blue", "orange", "lightgreen", "lightblue"]
+    for i in range(len(tileTypes)):
         tiles[tileTypes[i]] = pygame.Surface((TILE, TILE))
         tiles[tileTypes[i]].fill(pygame.Color(tileColors[i]))
     
@@ -64,45 +81,48 @@ if __name__ == "__main__":
         y += Y[direction]
         
         if (x, y) == start:
-            running = False
+            mapExplored = True
 
-        result = robot.run(DIRECTIONS[direction])
-        if result > 0:
-            if (x,y) in world:
-                if not isGoalReached:
-                    path.pop()
+        if not mapExplored:
+            result = robot.run(DIRECTIONS[direction])
+            if result > 0:
+                if (x,y) in world:
+                    if not isGoalReached:
+                        path.pop()
+                else:
+                    world[(x,y)] = "empty"
+                    if result == 2:
+                        print(len(path))
+                        world[(x, y)] = "oxygen"
+                        oxygens.append((x, y))
+                        isGoalReached = True
+                    if not isGoalReached:
+                        world[(x,y)] = "path"
+                        path.append((x, y))
+
+                direction = turnLeft(direction)
+                current = (x, y)
             else:
-                world[(x,y)] = "empty"
-                if result == 2:
-                    print(len(path))
-                    goal = (x, y)
-                    isGoalReached = True
-                if not isGoalReached:
-                    path.append((x,y))
-
-            direction = turnLeft(direction)
-            current = (x, y)
+                direction = turnRight(direction)
+                world[(x,y)] = "wall"
         else:
-            direction = turnRight(direction)
-            world[(x,y)] = "wall"
+            if oxygens:
+                time += 1
+                fillOxygen(oxygens, world)
+            else:
+                print(time)
+                running = False
             
-            # TODO export in a function
-            screen.fill(pygame.Color("grey50"))
-            for  x, y in world:
-                type = world[x, y]
-                screen.blit(tiles[type], (x * TILE, y * TILE))
-            for  x, y in path:
-                screen.blit(tiles["path"], (x * TILE, y * TILE))
-            x,y = current
-            screen.blit(tiles["robot"], (x * TILE, y * TILE))
-            x,y = start
-            screen.blit(tiles["start"], (x * TILE, y * TILE))
-            if goal:
-                x, y = goal
-                screen.blit(tiles["goal"], (x * TILE, y * TILE))
+        # TODO export in a function
+        screen.fill(pygame.Color("grey50"))
+        for  x, y in world:
+            type = world[x, y]
+            screen.blit(tiles[type], (x * TILE, y * TILE))
+        x,y = current
+        screen.blit(tiles["robot"], (x * TILE, y * TILE))
 
 
-            pygame.display.flip()
-            pygame.time.Clock().tick(120)
+        pygame.display.flip()
+        pygame.time.Clock().tick(60)
     
 
