@@ -1,43 +1,60 @@
-from itertools import cycle, repeat
 import os
 import sys
 
 PATTERN = [0, 1, 0, -1]
 
-# TODO: This will not be fast enough for part 2. I have to tweak the perf
-# on this calculation.
-def phase(input):
+# TODO: I remember somebody doing this with modulo, I should look into it.
+def next(current):
+    if current == len(PATTERN) - 1:
+        return 0
+    else:
+        return current + 1
+
+# TODO: Better but still kinda slow. Need to think about it...
+# Skip all zero. Continue at the next index that have a value.
+def phase(signal):
+    # output to use by the next phase
     out = []
-    for j in range(1, len(input) + 1):
-        pos = 1
+    # The current amount that the current number in PATTERN
+    # must be repeated.
+    mult = 1
+    # The current position in PATTERN
+    pos = 1
+
+    for _ in range(len(signal)):
+        # To count the number of time we used the current
+        # pattern position (start at one).
+        iteration = 1
         result = 0
-        pattern = []
-       
-        for num in PATTERN:
-            for i in range(j):
-                pattern.append(num)
+        # Current position in the signal.
+        i = 0
+        while i <= len(signal) - 1:
+            if PATTERN[pos] == 0:
+                i += (mult - iteration)
+                iteration = mult
+            else:
+                result += PATTERN[pos] * signal[i]
+                iteration += 1
+                i += 1
 
-        c = cycle(pattern)
-        next(c)
-        for i in input:
-            current = next(c)
-            result += i * current
-        
-        result = abs(result) % 10
-        out.append(result)
+            if iteration >= mult:
+                iteration = 0
+                pos = next(pos)
+
+        out.append(abs(result) % 10)
+        mult += 1
+        pos = 0
     return out
-
-def multiphasing(input, nb):
-    out = input
+        
+def multiphasing(signal, nb):
+    out = signal
     for i in range(nb):
         out = phase(out)
-    string = [str(l) for l in out[0:8]]
-    r = ''.join(string)
-    return r
+
+    return ''.join([str(l) for l in out[0:8]])
 
 if __name__ == "__main__":
     with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
-        str = f.read()
-        signal = [int(c) for c in str]
+        signal = [int(c) for c in f.read()]
 
         print(multiphasing(signal, 100))
