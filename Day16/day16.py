@@ -10,7 +10,6 @@ def next(current):
     else:
         return current + 1
 
-# TODO: Better but still kinda slow. Need to think about it...
 # Skip all zero. Continue at the next index that have a value.
 def phase(signal):
     # output to use by the next phase
@@ -48,13 +47,39 @@ def phase(signal):
         
 def multiphasing(signal, nb):
     out = signal
-    for i in range(nb):
+    for _ in range(nb):
         out = phase(out)
 
     return ''.join([str(l) for l in out[0:8]])
+
+# The end of the sequence always follow the same pattern.
+# TODO: Still very slow, I had to let it run 1h before having the
+# answer. Insert maybe too slow, reversed as well.
+def offsetPhasing(signal):
+    out = []
+    previous = 0
+    for n in reversed(signal):
+        current = (previous + n) % 10
+        out.insert(0, current)
+        previous = current
+    return out
+
 
 if __name__ == "__main__":
     with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
         signal = [int(c) for c in f.read()]
 
+        #Part 1
         print(multiphasing(signal, 100))
+
+        # Part 2
+        f.seek(0)
+        input = f.read() * 10000
+        offset = int(''.join([i for i in input[0:7]]))
+        signal = [int(c) for c in input[offset::]]
+
+        for i in range(100):
+            signal = offsetPhasing(signal)
+
+        
+        print(''.join([str(l) for l in signal[0:8]]))
