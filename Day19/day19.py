@@ -1,26 +1,21 @@
 import os
 import sys
-from intCode_compiler import Intcode
+# Add the parent directory to the path
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+from intcode.intCode_compiler import Intcode
 
 GRID_SIZE = 50
 
 if __name__ == '__main__':
-    with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
-        l = f.read().split(",")
-        l = list(map(int, l))
-        padding =  [0] * 10000
-        memory = l + padding
-
     x = 0
     y = 0
     total = 0
     while x < GRID_SIZE:
         for y in range(GRID_SIZE):
-            intcode = Intcode(memory)
-            intcode.input = x
-            intcode.run()
-            intcode.input = y
-            total += intcode.run()
+            intcode = Intcode("input.txt")
+            intcode.run(x)
+            total += intcode.run(y)
         x += 1
     print(total)
         

@@ -1,7 +1,10 @@
 import os
 import sys
 import pygame
-from intCode_compiler import Intcode
+# Add the parent directory to the path
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+from intcode.intCode_compiler import Intcode
 
 
 DIRECTIONS = [1, 4, 2, 3]
@@ -42,14 +45,7 @@ def fillOxygen(oxygens, world):
                     
 
 if __name__ == "__main__":
-    with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
-        l = f.read().split(",")
-        l = list(map(int, l))
-
-        padding =  [0] * 1000
-        memory = l + padding
-
-    robot = Intcode(memory)
+    robot = Intcode("input.txt")
     current = (25,25)
     start = (25,25)
     world = {current: "start"}
@@ -66,7 +62,7 @@ if __name__ == "__main__":
     for i in range(len(tileTypes)):
         tiles[tileTypes[i]] = pygame.Surface((TILE, TILE))
         tiles[tileTypes[i]].fill(pygame.Color(tileColors[i]))
-    
+
     mapExplored = False
     running = True
 
@@ -75,7 +71,7 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-    
+
         x, y = current
         x += X[direction]
         y += Y[direction]

@@ -1,7 +1,10 @@
 import sys
 import os
-from intCode_compiler import Intcode
 from tkinter import *
+# Add the parent directory to the path
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+from intcode.intCode_compiler import Intcode
 
 
 def paint(firstInput, part2):
@@ -15,7 +18,7 @@ def paint(firstInput, part2):
     y = 50
 
     input = firstInput
-    intCode = Intcode(l)
+    intCode = Intcode("input.txt")
     while not intCode.stopped:
         # First output
         out = intCode.run(input)
@@ -62,12 +65,7 @@ def paint(firstInput, part2):
     return paints
 
 
-with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
-    lst = f.read().split(",")
-    lst = list(map(int, lst))
-    padding = [0] * 1000
-    l = lst + padding
-
+if __name__ == "__main__":
     # Part 1
     paints = paint(0, False)
     print("PART 1: The robots moves", len(paints), "times")

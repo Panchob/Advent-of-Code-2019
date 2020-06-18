@@ -1,3 +1,5 @@
+import os
+import sys
 
 FIRST_PARAM = 0
 SECOND_PARAM = 1
@@ -36,16 +38,25 @@ def positions(l, i, relative_base):
 
     return modes
 
+def parseIntcode(file):
+    with open(os.path.join(sys.path[0], file), "r") as f:
+        code =list(map(int, f.read().split(",")))
+        padding =  [0] * 10000
+        return code + padding
+
+
 class Intcode:
-    def __init__(self, intCode):
-        self.code = intCode[:]
+    def __init__(self, file):
+        self.code = parseIntcode(file)[:]
         self.input = None
         self.position = 0
         self.stopped = False
         self.waiting = False
         self.relative_base = 0
         
-    def run(self):
+    def run(self, input=None):
+        if input is None:
+            input = self.input
         i = self.position
         increment = 0
         l = self.code
@@ -69,12 +80,12 @@ class Intcode:
                 increment = 4
             # 3 - Store input value
             elif instruction == 3:
-                if self.input is None:
+                if input is None:
                     self.position = i
                     self.waiting = True
                     break
 
-                l[pos[FIRST_PARAM]] = self.input
+                l[pos[FIRST_PARAM]] = input
                 self.input = None
                 increment = 2
             # 4 - output value
@@ -119,8 +130,8 @@ class Intcode:
                 break
             i += increment
         
-    def setInput(self, intput):
-        self.input = intput
+    def setInput(self, input):
+        self.input = input
         self.waiting = False
 
 

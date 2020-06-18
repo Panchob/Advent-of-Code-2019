@@ -1,6 +1,9 @@
 import os
 import sys
-from intCode_compiler import Intcode
+# Add the parent directory to the path
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+from intcode.intCode_compiler import Intcode
 
 def listIntersection(graph):
     intersection = set()
@@ -14,14 +17,8 @@ def listIntersection(graph):
     return (intersection)
 
 
-with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
-    l = f.read().split(",")
-    l = list(map(int, l))
-    padding =  [0] * 10000
-    memory = l + padding
-
 with open(os.path.join(sys.path[0], "output.txt"), "w") as w:
-    intcode = Intcode(memory)
+    intcode = Intcode("input.txt")
     w.write(" ")
 
     graph = set()
