@@ -9,13 +9,22 @@ class Springdroid:
 
     def __init__(self, computer):
         self.computer = computer
- 
+    
+
+    
     def run(self, instructions):
+        out = []
         computer = self.computer
+
+        while not computer.waiting:
+            out.append(computer.run())
+
+        print("".join([chr(o) for o in out[:-1]]))
+
+
         for instruction in instructions:
             for i in map(ord, instruction):
-                computer.run(i)
-        return computer.run(10)
+                out.append(chr(computer.run(i)))
 
 
 if __name__ == '__main__':
@@ -28,7 +37,7 @@ if __name__ == '__main__':
         for line in s.readlines():
             instructions.append(line)
     
-    print(chr(spring.run(instructions)))
+    spring.run(instructions)
 
 
                 
