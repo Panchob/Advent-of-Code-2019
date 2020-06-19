@@ -47,7 +47,7 @@ def parseIntcode(file):
 
 class Intcode:
     def __init__(self, file):
-        self.code = parseIntcode(file)[:]
+        self.memory = parseIntcode(file)[:]
         self.input = None
         self.position = 0
         self.stopped = False
@@ -57,26 +57,27 @@ class Intcode:
     def run(self, input=None):
         if input is None:
             input = self.input
+            
         i = self.position
+        memory = self.memory
         increment = 0
-        l = self.code
         
-        while i < len(l):
-            instruction = l[i] % 100
+        while i < len(memory):
+            instruction = memory[i] % 100
             if instruction == 99:
                 self.stopped = True
                 return 10
 
             instruction = instruction % 10
-            pos = positions(l, i, self.relative_base)
+            pos = positions(memory, i, self.relative_base)
 
             # 1 - addition
             if instruction == 1:
-                l[pos[THIRD_PARAM]] = l[pos[FIRST_PARAM]] + l[pos[SECOND_PARAM]]
+                memory[pos[THIRD_PARAM]] = memory[pos[FIRST_PARAM]] + memory[pos[SECOND_PARAM]]
                 increment = 4
             # 2 - multiplication
             elif instruction == 2:
-                l[pos[THIRD_PARAM]] = l[pos[FIRST_PARAM]] * l[pos[SECOND_PARAM]]
+                memory[pos[THIRD_PARAM]] = memory[pos[FIRST_PARAM]] * memory[pos[SECOND_PARAM]]
                 increment = 4
             # 3 - Store input value
             elif instruction == 3:
@@ -85,45 +86,45 @@ class Intcode:
                     self.waiting = True
                     break
 
-                l[pos[FIRST_PARAM]] = input
+                memory[pos[FIRST_PARAM]] = input
                 self.input = None
                 increment = 2
-            # 4 - output value
+            # 4 - Output values
             elif instruction == 4:
                 self.position = i + 2
-                return(l[pos[FIRST_PARAM]])
+                return(memory[pos[FIRST_PARAM]])
                 
             # 5 - Jump if true
             elif instruction == 5:
-                if l[pos[FIRST_PARAM]] != 0:
-                    i = l[pos[SECOND_PARAM]]
+                if memory[pos[FIRST_PARAM]] != 0:
+                    i = memory[pos[SECOND_PARAM]]
                     increment = 0
                 else:
                     increment = 3
             # 6 - Jump if false
             elif instruction == 6:
-                if l[pos[FIRST_PARAM]] == 0:
-                    i = l[pos[SECOND_PARAM]]
+                if memory[pos[FIRST_PARAM]] == 0:
+                    i = memory[pos[SECOND_PARAM]]
                     increment = 0
                 else:
                     increment = 3
             # 7 - Less than
             elif instruction == 7:
-                if l[pos[FIRST_PARAM]] < l[pos[SECOND_PARAM]]:
-                    l[pos[THIRD_PARAM]] = 1
+                if memory[pos[FIRST_PARAM]] < memory[pos[SECOND_PARAM]]:
+                    memory[pos[THIRD_PARAM]] = 1
                 else:
-                    l[pos[THIRD_PARAM]] = 0
+                    memory[pos[THIRD_PARAM]] = 0
                 increment = 4
             # 8 - Equals
             elif instruction == 8:
-                if l[pos[FIRST_PARAM]] == l[pos[SECOND_PARAM]]:
-                    l[pos[THIRD_PARAM]] = 1
+                if memory[pos[FIRST_PARAM]] == memory[pos[SECOND_PARAM]]:
+                    memory[pos[THIRD_PARAM]] = 1
                 else:
-                    l[pos[THIRD_PARAM]] = 0
+                    memory[pos[THIRD_PARAM]] = 0
                 increment = 4
             # 9 - Adjust the relative base
             elif instruction == 9:
-                self.relative_base += l[pos[FIRST_PARAM]]
+                self.relative_base += memory[pos[FIRST_PARAM]]
                 increment = 2
             # Bad instruction
             else:
