@@ -20,12 +20,19 @@ class Springdroid:
             out.append(computer.run())
 
         print("".join([chr(o) for o in out[:-1]]))
-
+        out = []
 
         for instruction in instructions:
             for i in map(ord, instruction):
-                out.append(chr(computer.run(i)))
+                computer.run(i)
 
+        while not computer.waiting and not computer.stopped:
+                out.append(computer.run()) 
+        out.pop()
+        ans = out.pop()     
+        print("".join([chr(o) for o in out]))
+        print (ans)
+        
 
 if __name__ == '__main__':
 
