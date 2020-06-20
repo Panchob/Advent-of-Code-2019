@@ -85,9 +85,12 @@ class Intcode:
                     self.position = i
                     self.waiting = True
                     break
+                else:
+                    self.waiting = False
 
                 memory[pos[FIRST_PARAM]] = input
-                self.input = None
+                input = None
+
                 increment = 2
             # 4 - Output values
             elif instruction == 4:
@@ -133,7 +136,6 @@ class Intcode:
         
     def setInput(self, input):
         self.input = input
-        self.waiting = False
 
 
 
