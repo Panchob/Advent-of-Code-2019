@@ -49,7 +49,7 @@ def checkForSpares(current, q):
     # Ex: I need 21 A and have 2 spares and 10A -> 10 ORES
     # I need to only use 1 spares to use the recipe 2 times instead
     # of 3.
-    elif math.ceil((q - spares[current]) / quantities[current]) <
+    elif math.ceil((q - spares[current]) / quantities[current]) <\
     math.ceil(q / quantities[current]):
         r = spares[current]
 
