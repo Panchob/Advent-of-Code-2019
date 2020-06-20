@@ -11,8 +11,6 @@ class TestNBody(unittest.TestCase):
         self.moons2 = separateAxis([Moon([-1, 0, 2]), Moon([2, -10, -7]), Moon([4, -8, 8]), Moon([3, 5, -1])])
 
 
-
-
     def test_step(self):
         step(self.moons1, 1)
         self.assertEqual(self.moons1,  self.result1)
@@ -21,9 +19,9 @@ class TestNBody(unittest.TestCase):
         step(self.moons1, 3)
         self.assertEqual(self.moons1,  self.result3)
 
+
     def test_repeatAfter(self):
         self.assertEqual(allSystemRepeat(self.moons2), 2772)
-
 
 
 if __name__ == '__main__': 

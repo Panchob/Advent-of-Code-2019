@@ -66,6 +66,7 @@ class Intcode:
             instruction = memory[i] % 100
             if instruction == 99:
                 self.stopped = True
+                #FIX: this is a problem for certain days.
                 return 10
 
             instruction = instruction % 10
@@ -136,6 +137,7 @@ class Intcode:
         
     def setInput(self, input):
         self.input = input
+        self.waiting = False
 
 
 
