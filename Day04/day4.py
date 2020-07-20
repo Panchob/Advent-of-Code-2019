@@ -46,7 +46,7 @@ def isValidPasswordWithMatchingRule(password):
     # is at the end of the password ex: 111122
     return (isIncreasing and (hasValidGroup or sequenceSize == 2))
 
-if __name__ == "__main__":a
+if __name__ == "__main__":
     part1 = 0
     part2 = 0
 
