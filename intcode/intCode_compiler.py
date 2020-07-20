@@ -138,6 +138,14 @@ class Intcode:
     def setInput(self, input):
         self.input = input
         self.waiting = False
+    
+    def getOutput(self):
+        out = []
+        while( not self.waiting and not self.stopped):
+            out.append(self.run())
+        # All the value except the last since it will always be None
+        return out[:-1]
+            
 
 
 
