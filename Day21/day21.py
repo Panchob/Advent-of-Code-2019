@@ -10,7 +10,6 @@ class Springdroid:
     def __init__(self, computer):
         self.computer = computer
     
-
     
     def run(self, instructions):
         out = []
