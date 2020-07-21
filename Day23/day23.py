@@ -14,8 +14,14 @@ class Computer(Intcode):
          self.__packets = []
 
 
+    def __repr__(self):
+        return 'Computer[packets: %i, idle: %s]' % (self.numberOfPacket(), self.waiting)
+
     def receivePacket(self, packet):
         self.__packets.append(packet)
+
+    def numberOfPacket(self):
+        return len(self.__packets)
     
 
     def getFirstPacket(self, time):
@@ -63,12 +69,16 @@ class Packet:
 
     def getAddress(self):
         return self.__address
+    
+    def setAddress(self, address):
+        self.__address = address
 
 
 class Network:
     def  __init__(self, size):
        self.__computers = [Computer("input.txt") for _ in range(50)]
        self.__time = 0
+       self.__nat = None
 
 
     def bootAll(self):
@@ -77,37 +87,59 @@ class Network:
 
 
     def communicate(self):
-        found = False
-        while not found:
-            for computer in self.__computers:
-                currentPacket = computer.getFirstPacket(self.__time)
-            
-                if currentPacket:
-                    packetToSend = computer.createPacket(currentPacket.getXY(), self.__time)
-                else:
-                    packetToSend = computer.createPacket(DEFAULT_INPUT, self.__time)
+        for computer in self.__computers:
+            currentPacket = computer.getFirstPacket(self.__time)
+        
+            if currentPacket:
+                packetToSend = computer.createPacket(currentPacket.getXY(), self.__time)
+            else:
+                packetToSend = computer.createPacket(DEFAULT_INPUT, self.__time)
 
-                found = self.send(packetToSend)
+            self.send(packetToSend)
 
-                if found: 
-                    break
 
-            self.__time += 1
-
+    def addTime(self):
+        self.__time += 1
+    
 
     def send(self, packet):
         if packet:
             address = packet.getAddress()
 
             if address == 255:
-                print("FOUND IT:", packet)
-                return True
+                if not self.__nat:
+                    print("FOUND IT:", packet)
+                packet.setAddress(0)
+                self.__nat = packet
+            else:
+                self.__computers[address].receivePacket(packet)
+            
 
-            self.__computers[address].receivePacket(packet)
-        return False
+    def resume(self):
+        self.send(self.__nat)
+        return self.__nat.getXY()
+
+
+    def isIdle(self):
+        for computer in self.__computers:
+            if not computer.waiting or computer.numberOfPacket() > 0:
+                return False
+        return True
+
 
 
 if __name__ == "__main__":
-    n = Network(50)
-    n.bootAll()
-    n.communicate()
+    network = Network(50)
+    network.bootAll()
+
+    while True:
+        network.communicate()
+        network.addTime()
+        lastY = 0
+
+        if network.isIdle():
+            currentY = network.resume()[1]
+            if currentY == lastY:
+                print("PART TWO", lastY)
+                break
+            lastY = currentY
