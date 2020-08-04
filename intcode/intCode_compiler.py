@@ -46,13 +46,14 @@ def parseIntcode(file):
 
 
 class Intcode:
-    def __init__(self, file):
+    def __init__(self, file, OutputAsASCII=False):
         self.memory = parseIntcode(file)[:]
         self.input = None
         self.position = 0
         self.stopped = False
         self.waiting = False
         self.relative_base = 0
+        self.OutputAsASCII = OutputAsASCII
         
     def run(self, input=None):
         if input is None:
@@ -96,7 +97,10 @@ class Intcode:
             # 4 - Output values
             elif instruction == 4:
                 self.position = i + 2
-                return(memory[pos[FIRST_PARAM]])
+                if self.OutputAsASCII:
+                    return(chr(memory[pos[FIRST_PARAM]]))
+                else:
+                    return(memory[pos[FIRST_PARAM]])
                 
             # 5 - Jump if true
             elif instruction == 5:
@@ -141,12 +145,13 @@ class Intcode:
     
     def getOutput(self):
         out = []
-        while( not self.waiting and not self.stopped):
+        while(not self.waiting and not self.stopped):
             out.append(self.run())
         # All the value except the last since it will always be None
         return out[:-1]
             
-
+    def isStopped(self):
+        return self.stopped
 
 
 
