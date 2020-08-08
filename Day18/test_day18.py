@@ -28,6 +28,7 @@ class testAStar(unittest.TestCase):
         
     def testGenerateAllNodesToVisit(self):
         nodes = generateAllNodesToVisit(self.paths1)
+        weightOfNode(self.graph1, nodes[0], getCurrentPosition(self.graph1))
         print(nodes)
 
 

@@ -33,7 +33,6 @@ def getCurrentPosition(graph):
                     return (x, y)
 
 
-
 def getDirectionsWithoutBacktracking(lastDirection):
     directions = [RIGHT, LEFT, UP, DOWN]
 
@@ -50,8 +49,8 @@ def getDirectionsWithoutBacktracking(lastDirection):
 
 
 # List everything that "@" has access to. I'm not classifying the in keys or
-# doors yet, just elements with distance from starting position and positions.
-def listAvailableElementsFromPosition(graph, position, steps, direction=None):
+# doors yet.
+def listAvailableElementsFromPosition(graph, position, direction=None):
     x,y = position
     keysAndDoors = []
     current = graph[x][y]
@@ -61,11 +60,11 @@ def listAvailableElementsFromPosition(graph, position, steps, direction=None):
         if current.isalpha():
             keysAndDoors.append(current)
             if current.isupper():
-                # Consider close doors as wall.
+                # Consider close doors as wall. (duh)
                 return keysAndDoors
 
         for d in getDirectionsWithoutBacktracking(direction):
-            res = listAvailableElementsFromPosition(graph, (x + d[0], y + d[1]), steps + 1, d)
+            res = listAvailableElementsFromPosition(graph, (x + d[0], y + d[1]), d)
             if res:
                 keysAndDoors.extend(res)
 
@@ -94,7 +93,42 @@ def validatePath(path):
         visited.append(elem)
     return True
 
-    
+isFound = False
+w = None
+
+def weightOfNode(graph, node, position):
+    path = node.value
+    weight = 0
+
+    for c in path:
+        isFound = False
+        nbStepTo(graph, position, goal=c)
+        x,y = w[0]
+        graph[x][y] = "."
+        position = w[0]
+
+        
+
+
+def nbStepTo(graph, position, goal, direction=None, steps=0):
+    x,y = position
+    current = graph[x][y]
+    res = None
+    global isFound
+    global w
+   
+
+    if current != '#':
+        if current == goal:
+            isFound = true
+            w = ((position), steps)
+        
+        if isFound:
+            return None
+
+        for d in getDirectionsWithoutBacktracking(direction):
+            nbStepTo(graph, (x + d[0], y + d[1]), goal, steps + 1)
+
 
 if __name__ == "__main__":
     pass
