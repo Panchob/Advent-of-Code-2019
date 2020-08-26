@@ -6,42 +6,21 @@ class Node():
         self.__weight = 0
     
     def __repr__(self):
-        return ("{value}, {weight}").format(value = self.value, weight = self.weight)
-    
-    def setWeight(self, weight):
-        self.__weight = weight
+        return ("{value}, {weight}").format(value = self.__value, weight = self.__weight)
 
 
-    def weightOfNode(instance):
+    def weight(self, instance):
         path = self.__value
-        lastPosition = instance.getPosition()
         weight = 0
 
         for c in path:
-            isFound = False
-            weight += nbStepToNext(goal=c, instance)
+            weight += instance.nbStepTo(c, instance.position())
+            instance.toggleFound()
 
-        node.setWeight(w)
+        self.__weight = weight
+        return weight
 
-def nbStepTo(goal, instance, direction=None, steps=0):
-    position = instance.getPosition()
-    current = instance.getValue()
-    res = 0
 
-    if current != '#':
-        if current == goal:
-            isFound = True
-            w += steps
-            lastPosition = position
-        
-        if isFound:
-            return 0
-
-        x, y = position
-        for d in getDirectionsWithoutBacktracking(direction):
-           res += nbStepTo(graph, (x + d[0], y + d[1]), goal, d, steps + 1)
-    
-    return res
 
 
 def createGraphFromString(string):
@@ -67,6 +46,10 @@ def generateAllNodesToVisit(paths):
 
 def validatePath(path):
     visited = []
+
+    if len(path) == 0:
+        return False
+
     for elem in path:
         if elem.isupper():
             if not elem.lower() in visited:
@@ -74,8 +57,18 @@ def validatePath(path):
         visited.append(elem)
     return True
 
+def searchAllPaths(instance):
+        nodes = generateAllNodesToVisit(instance.generateAllPossiblePath())
+        while nodes:
+            node = nodes.pop()
+            instance.addSteps(node.weight(instance))
+            instance.updateTokens()
+            nodes.extend(generateAllNodesToVisit(instance.generateAllPossiblePath()))
 
 if __name__ == "__main__":
-    pass
+        graph = createGraphFromString("#########\n#b.A.@.a#\n#########\n")
+        instance = Instance(graph)
+        instance.updateTokens()
+        searchAllPaths(instance)
     
 
