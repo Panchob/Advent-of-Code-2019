@@ -5,12 +5,16 @@ from day18 import *
 class testAStar(unittest.TestCase):
     def setUp(self):
         self.graph1 = createGraphFromString("#########\n#b.A.@.a#\n#########\n")
+        self.graph2 = createGraphFromString("########################\n#f.D.E.e.C.b.A.@.a.B.c.#\n######################.#\n#d.....................#\n########################\n")
         self.instance1 = Instance(self.graph1)
         self.instance1.updateTokens()
+        self.instance2 = Instance(self.graph2)
+        self.instance2.updateTokens()
         
     def testCreateGraphFromString(self):
         self.assertEqual(len(self.graph1), 3)
         self.assertEqual(len(self.graph1[0]), 9)
+        self.assertEqual(len(self.graph2), 5)
     
 
     def testValidatePath(self):
@@ -18,22 +22,18 @@ class testAStar(unittest.TestCase):
         #self.assertEqual(validatePath(self.paths1), False)
         
     def testGenerateAllNodesToVisit(self):
-        nodes = generateAllNodesToVisit(self.instance1.generateAllPossiblePath())
-        print(nodes)
+       self.assertEqual(len(generateAllNodesToVisit(self.instance1.generateAllPossiblePath())), 1)
+       self.assertEqual(len(generateAllNodesToVisit(self.instance2.generateAllPossiblePath())), 1)
 
     def testNodeWeight(self):
         node = Node("aA")
-        node.weight(self.instance1)
+        node.setInstance(self.instance1)
+        node.weight()
         print(node)
 
-    def testGetAllKeys(self):
-        nodes = generateAllNodesToVisit(self.instance1.generateAllPossiblePath())
-        while nodes:
-            node = nodes.pop()
-            self.instance1.addSteps(node.weight(self.instance1))
-            self.instance1.updateTokens()
-            nodes.extend(generateAllNodesToVisit(self.instance1.generateAllPossiblePath()))
-
+    def testSearchAllPaths(self):
+        searchAllPaths(self.instance1)
+        searchAllPaths(self.instance2)
 
 
 if __name__ == "__main__":

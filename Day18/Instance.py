@@ -40,6 +40,9 @@ class Instance():
     def addSteps(self, steps):
         self.__nbSteps += steps
 
+    def nbSteps(self):
+        return self.__nbSteps
+
     def updateTokens(self):
         self.__tokens = self.listAvailableElementsFromPosition(self.__position)
 
