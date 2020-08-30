@@ -11,41 +11,52 @@ class Instance():
         self.__position = self.getCurrentPosition()
         self.__nbSteps = 0
         self.__foundNextToken = False
-        self.__allFound = False
         # Everything that "@" has access to.
         self.__tokens = []
+        self.__keys = []
 
     def position(self):
         return self.__position
-    
-    def allFound(self):
-        return self.__allFound
+
 
     def getValue(self, position):
         x, y = position
         return self.__graph[x][y]
 
+
     def setValueAt(self, position, value):
         x, y = position
         self.__graph[x][y] = value
+
 
     def setCurrentPosition(self, position):
         self.setValueAt(self.__position, ".")
         self.setValueAt(position, "@")
         self.__position = position
 
+
     def toggleFound(self):
         self.__foundNextToken = not self.__foundNextToken
     
+
     def addSteps(self, steps):
         self.__nbSteps += steps
+
 
     def nbSteps(self):
         return self.__nbSteps
 
+
     def updateTokens(self):
         self.__tokens = self.listAvailableElementsFromPosition(self.__position)
 
+    
+    def keyFound(self, keys):
+        self.__keys.extend(keys)
+
+
+    def keys(self):
+        return self.__keys
 
     def listAvailableElementsFromPosition(self, position, direction=None):
         x,y = position
@@ -85,6 +96,8 @@ class Instance():
                 res += self.nbStepTo(goal, (x + d[0], y + d[1]), d, steps + 1)
         
         return res
+
+
 
 
     def generateAllPossiblePath(self):
