@@ -44,7 +44,7 @@ class testAStar(unittest.TestCase):
         searchAllPaths(self.instance2)
         #searchAllPaths(self.instance3)
         #searchAllPaths(self.instance4)
-        searchAllPaths(self.instance5)
+        #searchAllPaths(self.instance5)
 
 
 if __name__ == "__main__":
