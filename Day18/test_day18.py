@@ -19,6 +19,11 @@ class testAStar(unittest.TestCase):
         self.instance4.updateTokens()
         self.instance5 = Instance(self.graph5)
         self.instance5.updateTokens()
+        self.instance1.listPositions()
+        self.instance2.listPositions()
+        self.instance3.listPositions()
+        self.instance4.listPositions()
+        self.instance5.listPositions()
 
     def testCreateGraphFromString(self):
         self.assertEqual(len(self.graph1), 3)
@@ -30,9 +35,9 @@ class testAStar(unittest.TestCase):
         pass
         #self.assertEqual(validatePath(self.paths1), False)
         
-    def testGenerateAllNodesToVisit(self):
-       self.assertEqual(len(generateAllNodesToVisit(self.instance1.generateAllPossiblePath())), 1)
-       self.assertEqual(len(generateAllNodesToVisit(self.instance2.generateAllPossiblePath())), 1)
+    def testGenerateAllNodes(self):
+       self.assertEqual(len(generateAllNodes(self.instance1.generateAllPossiblePath())), 1)
+       self.assertEqual(len(generateAllNodes(self.instance2.generateAllPossiblePath())), 1)
 
     def testNodeWeight(self):
         node = Node("aA")
@@ -42,9 +47,9 @@ class testAStar(unittest.TestCase):
     def testSearchAllPaths(self):
         searchAllPaths(self.instance1)
         searchAllPaths(self.instance2)
-        #searchAllPaths(self.instance3)
+        searchAllPaths(self.instance3)
         #searchAllPaths(self.instance4)
-        #searchAllPaths(self.instance5)
+        searchAllPaths(self.instance5)
 
 
 if __name__ == "__main__":

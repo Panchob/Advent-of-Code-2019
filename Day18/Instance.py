@@ -1,4 +1,5 @@
-import itertools
+from itertools import combinations
+from itertools import permutations
 
 RIGHT = (0, 1)
 LEFT = (0, -1)
@@ -11,6 +12,7 @@ class Instance():
         self.__position = self.getCurrentPosition()
         self.__nbSteps = 0
         self.__foundNextToken = False
+        self.__positions = {}
         # Everything that "@" has access to.
         self.__tokens = []
         self.__keys = []
@@ -22,6 +24,10 @@ class Instance():
     def getValue(self, position):
         x, y = position
         return self.__graph[x][y]
+    
+
+    def getPostionFromValue(self, value):
+        return self.__positions[value]
 
 
     def setValueAt(self, position, value):
@@ -57,6 +63,18 @@ class Instance():
 
     def keys(self):
         return self.__keys
+    
+    def listPositions(self):
+        x = 0
+        y = 0
+
+        for line in self.__graph:
+            for c in line:
+                if c.isalpha():
+                    self.__positions[c] = (x, y)
+                y += 1
+            x +=1
+            y = 0
 
     def listAvailableElementsFromPosition(self, position, direction=None):
         x,y = position
@@ -98,11 +116,41 @@ class Instance():
         return res
 
 
-
-
     def generateAllPossiblePath(self):
-        return itertools.permutations(self.__tokens)
+        paths = []
+        keysC =[]
+        keys = list(filter(lambda c: c.islower(), self.__tokens))
+        keysC.extend(keys[:])
+        doors = list(filter(lambda c: c.isupper(), self.__tokens))
 
+        if len(keys) > 2:
+            for i in range(2, len(keys)):
+                comb = list(combinations(keys[:], i))
+                for j in comb:
+                    s = ''.join(j) 
+                    keysC.append(s)
+            per = list(permutations(keys[:]))
+            for j in per:
+                s = ''.join(j)
+                keysC.append(s)
+        elif len(keys) == 2:
+            s = ''.join(keys)
+            keysC.append(s)
+
+        if not keysC:
+            for door in doors:
+                paths.append(door)
+                
+        for k in keysC:
+            for door in doors:
+                if door.lower() in k or door.lower() in self.__keys:
+                    paths.append(k + door)
+        
+        if not paths:
+            paths = keysC
+        
+        return paths
+                
 
     def getCurrentPosition(self):   
             for x in range(1, len(self.__graph) - 1):

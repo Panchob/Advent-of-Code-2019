@@ -2,10 +2,10 @@ from Instance import Instance
 import copy
 
 class Node():
-    def __init__(self, value):
-        self.__path = value
+    def __init__(self, path, instance=None):
+        self.__path = path
         self.__weight = 0
-        self.__instance = None
+        self.__instance = instance
     
     def __repr__(self):
         return ("{value}, {weight}").format(value = self.__path, weight = self.__weight)
@@ -43,118 +43,105 @@ class Node():
         return weight
 
 
-positions = {}
 def createGraphFromString(string):
     graph = []
     line = []
     x, y = 0, 0
     for character in string:
         if character == '\n':
-            x += 1
-            y = 0
             graph.append(line[:])
             line = []
         else:
-            if character.isalpha():
-                positions[character] = (x, y)
-            y += 1
             line.append(character)
 
     return graph
 
 
-def generateAllNodesToVisit(paths, keys=[]):
+def generateAllNodes(paths, instance=None):
     nodes = []
 
     for p in paths:
-        truncatedPaths = truncatePath(p, keys)
-        
-        if len(p) == 1:
-            nodes.append(Node("".join(p)))
-
-        for tp in truncatedPaths:
-            if tp not in nodes:
-                nodes.append(Node("".join(tp)))
+        nodes.append(Node("".join(p), instance))
 
     return nodes
 
 
-def truncatePath(path, keys):
-        paths = []
-        visited = []
-        for elem in path:
-            visited.append(elem)
-
-            if len(visited) > 1 and elem.isupper() and validatePath(visited, keys):
-
-                paths.append(visited[:])
-                break
-            elif elem.isupper():
-                break
-
-        return paths
-
-
-def validatePath(path, keys):
-    visited = []
-
-    if len(path) == 0:
-        return False
-
-    for elem in path:
-        visited.append(elem)
-        if elem.isupper():
-            if not elem.lower() in keys and not elem.lower() in visited:
-                return False
-            
-    return True
-
-
 def searchAllPaths(currentInstance):
-        nodes = generateAllNodesToVisit(currentInstance.generateAllPossiblePath(), currentInstance.keys())
-        total = []
+        totals = []
         visited = {}
 
+        # A node represent a path, not a single point. Each nodes have its own instance.
+        # Example ['aA']
+        nodes = generateAllNodes(currentInstance.generateAllPossiblePath(), currentInstance)
+  
         for n in nodes:
             newInstance = copy.deepcopy(currentInstance)
+            # TODO: could be done when generating path
             newInstance.keyFound(n.listKeys())
-            n.setInstance(newInstance)
-
+        
+        # TODO: function!
         while nodes:
-            # Add weight
-            j = nodes.pop()
-            instance = j.instance()
-            w = j.weight()
+
+            no = nodes.pop()
+            instance = no.instance()
+            w = no.weight()
+
+            # Add weight ['aA'] => 4
+            # The instance also count the number of step required to reach
+            # the first letter => 2.
             instance.addSteps(w)
-            visited[j.path()] = w
+            if len(no.path()) > 2:
+                # TODO: visited node should be added recursively
+                visited[no.path()] = w
             instance.updateTokens()
 
-            # generate new path
-            newNodes = generateAllNodesToVisit(instance.generateAllPossiblePath(), instance.keys())
+            # From the current node, generate all possible path.
+            # Example: ['b']
+            newNodes = generateAllNodes(instance.generateAllPossiblePath())
             
             if  newNodes:
                 for n in newNodes:
                     path = n.path()
+                    # 
                     if path not in visited:
+                        # TODO: function!
                         instance2 = copy.deepcopy(instance)
                         instance2.keyFound(n.listKeys())
                         n.setInstance(instance2)
                         nodes.append(n) 
                     else:
+                        # If the weight is already computed, use the stored value.
+                        # Still have to process the number of step to get to the first position.
                         instance.addSteps(instance.nbStepTo(path[0], instance.position()))
                         instance.addSteps(visited[path])
-                        print(positions[path[-1]])
-                        instance.setCurrentPosition(positions[path[-1]])
-            else:
-                total.append(instance.nbSteps())
+                        instance.setCurrentPosition(instance.getPostionFromValue(path[-1]))
+
+            if not newNodes or not nodes:
+                totals.append(instance.nbSteps())
+                
     
-        print(total)
+        print(totals)
     
 
 if __name__ == "__main__":
-        graph = createGraphFromString("#################\n#i.G..c...e..H.p#\n########.########\n#j.A..b...f..D.o#\n########@########\n#k.E..a...g..B.n#\n########.#########l.F..d...h..C.m#\n#################\n")
+        # Graph example:#########
+                        #b.A.@.a#
+                        #########
+
+        graph = createGraphFromString("#########\n#b.A.@.a#\n#########\n")
+        # An instance contains useful information of a search
+        # - Graph
+        # - Current Position
+        # - Key found
+        # - Number of step taken
+        # - All available keys and doors for the current position
         instance = Instance(graph)
+        
+        # Find all available keys and doors and store it in the first instance
         instance.updateTokens()
+        instance.listPositions()
         searchAllPaths(instance)
+
+
     
 
