@@ -41,15 +41,14 @@ class testAStar(unittest.TestCase):
 
     def testNodeWeight(self):
         node = Node("aA")
-        node.setInstance(self.instance1)
-        node.weight()
+        node.weight(self.instance1)
 
-    def testSearchAllPaths(self):
-        searchAllPaths(self.instance1)
-        searchAllPaths(self.instance2)
-        searchAllPaths(self.instance3)
-        #searchAllPaths(self.instance4)
-        searchAllPaths(self.instance5)
+    def testMinNumberOfSteps1(self):
+        self.assertEqual(minNumberOfSteps(self.instance1), 8)
+        self.assertEqual(minNumberOfSteps(self.instance2), 86)
+        self.assertEqual(minNumberOfSteps(self.instance3), 132)
+        #self.assertEqual(minNumberOfSteps(self.instance4), 136)
+        #self.assertEqual(minNumberOfSteps(self.instance5), 81)
 
 
 if __name__ == "__main__":
