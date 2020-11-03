@@ -2,76 +2,65 @@ import os
 import sys
 
 
-def minDistance(wire1, wire2):
-    intersections = set(wire1).intersection(wire2)
-    distances = []
-    for n in intersections:
-        res = abs(n[0]) + abs(n[1])
-        if res > 0:
-            distances.append(res)
+def minDistanceOriginAnd(intersections):
+    # Center is (0, 0) so distance is simply x + y.
+    distances = [abs(x) + abs(y) for x, y in intersections]
     return min(distances)
 
 
-# Basically copied and pasted minDistance.
-def minSteps(wire1, wire2):
-    intersections = set(wire1).intersection(wire2)
+def minStepsToReachIntersection(wires):
+    intersections = intersectionsBetweenWires(wires)
     steps = []
-    for n in intersections:
-        res = abs(n[0]) + abs(n[1])
-        if res > 0:
-            # Since everything start at (0,0), the index is
-            # the number of steps.
-            steps.append(wire1.index(n) + wire2.index(n))
+    for i in intersections:
+        # Since everything start at (0,0), the index is
+        # the number of steps.
+        steps.append(wires[0].index(i) + wires[1].index(i))
     return min(steps)
 
 
-def positions(wire):
-    board = [(0, 0)]
-    for instruction in wire:
-        # Instead of calculating the line, just enumerate all
-        # positions.
-        direction = instruction[0]
-        # Take the end of the string since the occurrence can be
-        # more than one char.
-        occurrence = int(instruction[1:])
-        lastX = board[-1][0]
-        lastY = board[-1][1]
+def intersectionsBetweenWires(wires):
+    intersections = set(wires[0]).intersection(wires[1])
+    # The center is by definition an intersections so we have 
+    # to remove it.
+    intersections.remove((0,0))
+    return intersections
 
-        if direction == "U":
-            for n in range(occurrence):
-                lastY += 1
-                board.append((lastX, lastY))
-        elif direction == "D":
-            for n in range(occurrence):
-                lastY -= 1
-                board.append((lastX, lastY))
-        elif direction == "L":
-            for n in range(occurrence):
-                lastX -= 1
-                board.append((lastX, lastY))
-        elif direction == "R":
-            for n in range(occurrence):
-                lastX += 1
-                board.append((lastX, lastY))
-    return board
+
+def getWireFrom(instructions):
+    # Also represent the center of the board
+    wire = [(0, 0)]
+    x, y = (0, 0)
+    directions = {
+        "U": (0, 1),
+        "D":  (0, -1),
+        "L": (-1, 0),
+        "R": (1, 0)
+    }
+
+    for instruction in instructions:
+        d = instruction[0]
+        occurrence = int(instruction[1:])
+        incX, incY = directions[d]
+
+        for n in range(occurrence):
+            x += incX
+            y += incY
+            wire.append((x, y))
+
+    return wire
 
 
 if __name__ == '__main__':
     with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
-        # First, store both wire in lists.
-        wires = []
+        instructions = []
         for line in f:
-            wires.append(line.split(","))
+            instructions.append(line.split(","))
 
         # Map all positions for both wires
-        wire1 = positions(wires[0])
-        wire2 = positions(wires[1])
+        wires = [getWireFrom(i) for i in instructions] 
 
-        # PART 1
-        # Find all all the intersections and print the smallest one.
-        print(minDistance(wire1, wire2))
+        # Get all intersections of those wires
+        intersections = intersectionsBetweenWires(wires)
 
-        # PART 2
-        # Use the same logic as in part one but return the smallest
-        # number of steps.
-        print(minSteps(wire1, wire2))
+        print("Part 1:", minDistanceOriginAnd(intersections))
+        print("Part 2:", minStepsToReachIntersection(wires))

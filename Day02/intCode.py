@@ -2,8 +2,9 @@
 import sys
 import os
 
+ANS = 19690720
 
-def compile(l):
+def run(l):
     i = 0
 
     while i < len(l):
@@ -20,10 +21,10 @@ def compile(l):
 
         # 1 - addition
         if  instruction == 1:
-            l[r] =  l[v1] + l[v2]
+            l[r] = l[v1] + l[v2]
         # 2 - multiplication
         elif l[i] == 2:
-            l[r] =  l[v1] * l[v2]
+            l[r] = l[v1] * l[v2]
         else:
             break
         # increment by 4 to get to the next instruction
@@ -32,7 +33,27 @@ def compile(l):
     return l
 
 
+def part2(l):
+    output = 0
+    current = 1 # noun position
+
+    while(output != ANS):
+        # Using a copy act as a data refresh
+        output = run(l[:])[0]
+
+        if(output < ANS):
+            l[current] += 1
+        elif(output > ANS):
+            l[current] -= 1
+            current += 1 # verb position
+
+    # The given answer format is 100 * noun + verb   
+    print("Part 2:", 100 * l[1] + l[2])
+
+
 if __name__ == '__main__': 
     with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
         l = list(map(int, f.read().split(",")))
-        print(compile(l)[0])
+        # Uses a copy to use it in part 1 and 2
+        print("Part 1:", run(l[:])[0])
+        part2(l)
