@@ -2,65 +2,54 @@ import os
 import sys
 from collections import defaultdict
 
-# I use global variable to simplify my recursive functions.
-# This is the graph of the problem. I made separate ones since
-# part one doesn't need backtracking.
-objects_p1 = defaultdict(list)
-objects_p2 = defaultdict(list)
-# Dictionary with each node and their respective child count.
-total = {}
-# Use in part two tell if a node have been visited.
-visited = {}
 
-# Depth first search, not necessarily the shortest path, but work with my data.
-def pathBetween(current, destination, path):
-    visited[current] = True
-    path.append(current)
-
-    for orbit in objects_p2[current]:
-        if orbit == destination:
-            print("Minimal orbital transfer:", len(path))
-            break
-        elif visited[orbit] is False:
-            pathBetween(orbit, destination, path)
-
-    path.pop()
-    visited[current] = False
+class Space:
+    def __init__(self, objects):
+        self.__objects = objects
+        self.__visited = []
 
 
-# Algorithm to count number of child a node has in a tree.
-# It wil loop on all nodes a store each count in "total" list.
-def totalOrbits(current):
-    for orbit in objects_p1[current]:
-        total[current] += 1
-        totalOrbits(orbit)
-        total[current] += total[orbit]
+    def totalOrbits(self, current, depth=0):
+        total = depth
+        self.__visited.append(current)
+
+        for object in self.__objects[current]:
+            if object not in self.__visited:
+                total += self.totalOrbits(object, depth + 1)
+        
+        return total
+
+
+    def pathBetween(self, current, destination):
+        self.__visited.append(current)
+
+        for object in self.__objects[current]:
+            if object == destination:
+                print("Minimal orbital transfer:", len(self.__visited))
+                break
+            elif object not in self.__visited:
+                self.pathBetween(object, destination)
+
+        self.__visited.pop()
+    
+    
+    def emptyVisited(self):
+        self.__visited = []
 
 
 if __name__ == "__main__":
     with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
+        objects = defaultdict(list)
+
         for line in f:
             line = line.rstrip('\n')
             name, orbit = line.split(")")
-            # Make sure to list every nodes.
-            total[name] = 0
-            total[orbit] = 0
-            # Same here
-            visited[name] = False
-            visited[orbit] = False
-            # Only the parents node in part1.
-            objects_p1[name].append(orbit)
-            # Parent to child vertex and child to parent
-            objects_p2[name].append(orbit)
-            objects_p2[orbit].append(name)
+            objects[name].append(orbit)
+            objects[orbit].append(name)
 
-    # PART ONE
-    totalOrbits("COM")
-    print("Total number of orbits:", sum(total.values()))
-
-    # PART TWO
-    path = []
-    # Pass the parent nodes to the function.
-    # We want to calculate the number of step between those two,
-    # not directly SANTA an YOU.
-    pathBetween(objects_p2["YOU"][0], objects_p2["SAN"][0], path)
+    space = Space(objects)
+    print("Total number of orbits:", space.totalOrbits('COM'))
+    space.emptyVisited()
+    # We want a path between what YOU and SAN are orbiting,
+    # not YOU and SAN directly
+    space.pathBetween(objects["YOU"][0], objects["SAN"][0])

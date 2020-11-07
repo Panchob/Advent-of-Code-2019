@@ -1,59 +1,61 @@
-from intCode_compiler import Intcode
+from Intcode import Intcode
 import sys
 import os
 import itertools
 
-
-def amplifiers(code, sequence):
-   # Initialize each amps whith curent phase
-   # sequence.
-   amps = []
-   for number in sequence:
-      amp = Intcode(code)
-      amp.run(int(number))
-      amps.append(amp)
-   return amps
-
-#Part one
-def outputSignal(intCode, signal):
-   ans = []
-   sequences = itertools.permutations(signal)
-   for seq in sequences:
-      amps = amplifiers(intCode, seq)
-      out = 0
-      for amp in amps:
-            out = amp.run(out)
-      ans.append(out)
-   return max(ans)
-
-#Part two
-def outputSignalWithFeedbackLoop(l, p):
-   ans = []
-   sequences = itertools.permutations(signal)
-   for seq in sequences:
-      amps = amplifiers(intCode, seq)
-      out = 0
-      currentAmp = amps[0]
-      i = 0
-      while  not currentAmp.stopped:
-         # My elegant way to loop back to the first amplifier
-            if i == len(seq):
-               i = 0
-            currentAmp = amps[i]
-            out = currentAmp.run(out)
-            i += 1
-      ans.append(out)
-   return max(ans)
-
+class Amplifier(Intcode):
+   def __init__(self, file, phase):
+      self.__phase = phase
+      Intcode.__init__(self, file)
    
 
-with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
-      intCode = f.read().split(",")
-      intCode = list(map(int, intCode))
+   def runPhase(self):
+      self.run(self.__phase)
+   
 
-      signal = ['4','3', '2', '1','0']
-      print("Output signal after running once:", outputSignal(intCode, signal))
+   def outputSignal(self, input):
+      self.run(input)
+      return self.getOutput()[0]
+
+
+
+def startAmps(amplifiers):
+   for amp in amplifiers:
+      amp.runPhase()
+
+
+def findBestOutput(signal, feedbackloop):
+   sequences = itertools.permutations(signal)
+   maxOut = 0
+
+   for seq in sequences:
+      amplifiers = []
+      out = 0
+      amplifiers = [Amplifier("input.txt", int(phase)) for phase in seq]
+      startAmps(amplifiers)
+
+      if feedbackloop:
+         i = 0
+         currentAmp = amplifiers[0]
+
+         while not currentAmp.isStopped():
+            out = currentAmp.outputSignal(out)
+            i += 1
+            currentAmp = amplifiers[i % len(amplifiers)]
+
+      else:
+         for amp in amplifiers:
+             out = amp.outputSignal(out)
       
-      signal = ['9','8', '7', '6','5']
-      print("Output signal after running the feedback loop:", outputSignalWithFeedbackLoop(intCode, signal))
-      
+      maxOut = out if out > maxOut else maxOut
+
+   return maxOut
+
+
+if __name__ == "__main__":
+
+   part1Signal = ['4','3', '2', '1','0']
+   part2Signal = ['5', '6', '7', '8', '9']
+
+   print("Part 1:", findBestOutput(part1Signal, feedbackloop=False))
+   print("Part 2:", findBestOutput(part2Signal, feedbackloop=True))

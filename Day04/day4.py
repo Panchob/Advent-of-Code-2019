@@ -2,65 +2,56 @@ START_VALUE = 402328
 END_VALUE = 864247
 
 
-def isValidPassword(password):
+def isValid(password):
     isValid = False
     currentSequence = password[0]
 
-    # Skip the first number, no need to check it.
     for number in password[1:]:
         # The password is always increasing
         if number < currentSequence:
             isValid = False
             break
         # It's not valid unless it have at least one repetition.
-        elif number != currentSequence:
+        if number != currentSequence:
             currentSequence = number
         else:
             isValid = True
     return isValid
 
 
-def isValidPasswordWithMatchingRule(password):
-    isIncreasing = True
+def hasAGroupOfTwoMatchingDigits(password):
     currentSequence = password[0]
     sequenceSize = 1
     hasValidGroup = False
 
-    # Skip the first number, no need to check it.
     for number in password[1:]:
-        # The password is always increasing
-        if number < currentSequence:
-            isIncreasing = False
-            break
-        # It's not valid unless it have at least one repetition.
-        elif number != currentSequence:
+        if number != currentSequence:
             currentSequence = number
-            # Changed number after a valid sequence.
-            if sequenceSize == 2:
-                hasValidGroup = True
             sequenceSize = 1
         else:
             sequenceSize = sequenceSize + 1
+            hasValidGroup = True if sequenceSize == 2 else False
+   
+    return (hasValidGroup)
 
-    # Had to include sequence here for when the valid repetition
-    # is at the end of the password ex: 111122
-    return (isIncreasing and (hasValidGroup or sequenceSize == 2))
 
 if __name__ == "__main__":
     part1 = 0
     part2 = 0
+    validPasswords = []
 
     for n in range(START_VALUE, END_VALUE):
         # Change each number into an array
         password = [x for x in str(n)]
 
-        # PART ONE
-        if isValidPassword(password):
-            part1 += 1
+        if isValid(password):
+            validPasswords.append(password)
+    
+    part1 = len(validPasswords)
 
-        # PART TWO
-        if isValidPasswordWithMatchingRule(password):
+    for password in validPasswords:
+        if hasAGroupOfTwoMatchingDigits(password):
             part2 += 1
 
-    print("PART ONE:", part1)
-    print("PART TWO:", part2)
+    print("Part one:", part1)
+    print("part two:", part2)
