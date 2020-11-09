@@ -3,81 +3,83 @@ import math
 import os
 import sys
 from collections import defaultdict
-            
-ASTEROIDX = 11
-ASTEROIDY = 13
+
 
 def asteroidCount(arr, curr):
-   rad = 0
    angles = defaultdict(list)
 
-   #print("Now calculating position: ", curr)
+   for y in range(len(arr)):
+      for x in range(len(arr[0])):
+         if arr[y][x] == '#' and (x, y) != curr:
+            deg = math.degrees(math.atan2((len(arr) - y) - (len(arr) - curr[1]), x - curr[0]))
+            angles[deg].append((x, y))
 
-   for j in range(len(arr)):
-      for i in range(len(arr[0])):
-         if arr[i][j] == '#':
-            deg = math.atan2(curr[0] - i, curr[1] - j) * 180 / math.pi
-            angles[deg].append((i, j))
    return(angles)
-             
 
-with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
 
-   matrix = []
-   for line in f:
-      for c in line.splitlines():
-         matrix.append(c)
-   arr = np.array(matrix)
+def sortAnglesAsCircle(angles):
+   quadrants = defaultdict(list)
 
-   total = []
-   maximum = (0,0)
-   mcount = 0
-   for j in range(len(arr)):
-      for i in range(len(arr[0])):
-         if arr[i][j] == '#':
-            total = asteroidCount(arr, (i,j))
-            if len(total) > mcount:
-               mcount = len(total)
-               anglespt2 = total
-               maximum = (i, j)
+   for angle in angles:
+      if(angle <= 90 and angle > 0):
+         quadrants[0].append(angle)
+      elif(angle <= 0 and angle > -90):
+         quadrants[1].append(angle)
+      elif(angle <= -90 ):
+         quadrants[2].append(angle)
+      else:
+         quadrants[3].append(angle)
 
-   #PART ONE
-   print(mcount)
-   print(maximum)
+   circle = []
+   # Start and finishes at 90, decreasing
+   for i in range(4):
+      quadrants[i].sort(reverse=True)
+      circle += quadrants[i]
 
-   first = []
-   second = []
-   third = []
-   fourth = []
+   return circle
 
-   for key in sorted(anglespt2.keys()):
-      if key >= 0 and key <= 90:
-         first.append(key)
-      elif key < 0 and key >= -90:
-         second.append(key)
-      elif key < -90 and key >= -180:
-         third.append(key)
-      elif key > 90 and key <= 180:
-         fourth.append(key)
 
-   keys = first + second + third + fourth
-   #print(keys)
+def getClosestAsteroid(asteroids, station):
+      closestDistance = 0
+      closestAsteroid = asteroids[0]
+      for x, y in asteroids:
+         d = abs(x - station[0]) + abs( y - station[1])
 
-   i = 0
-   while i < 200:
-      for key in keys:
-         current = anglespt2[key]
-         maxDis = 10000000000
-         toRemove = current[0]
-         for point in current:
-            dis = math.sqrt((point[0] - ASTEROIDX)**2 + (point[1] - ASTEROIDY)**2)
-            if dis <= maxDis:
-               maxDis = dis
-               toRemove = point
-         print(i, toRemove)
-         current.remove(toRemove)
-         i += 1
-         if i == 200:
-            break
+         if closestDistance == 0 or d < closestDistance:
+            closestDistance = d
+            closestAsteroid = (x, y)
+
+      return closestAsteroid
+
+
+if __name__ == "__main__":
+   with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
+      matrix = []
+      for line in f:
+         for c in line.splitlines():
+            matrix.append(c)
+      arr = np.array(matrix)
+
+   station = (0,0)
+   angles = []
+   maxCount = 0
+   for y in range(len(arr)):
+      total = []
+      for x in range(len(arr[0])):
+         if arr[y][x] == '#':
+            total = asteroidCount(arr, (x, y))
+            if len(total) > maxCount:
+               maxCount = len(total)
+               angles = total
+               station = (x, y)
+
+
+   circle = sortAnglesAsCircle(angles)
+   ans = circle[199]
+   asteroids = angles[ans]
+   (x, y) = getClosestAsteroid(asteroids, station)
+
+   print("Part 1:", len(angles))
+   print("Part 2:", (x * 100) + y)
 
 

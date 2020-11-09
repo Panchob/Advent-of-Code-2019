@@ -6,7 +6,6 @@ WIDTH = 25
 HEIGHT = 6
 
 
-# Part One
 def findLayer(image):
     layer = []
     i = 0
@@ -35,7 +34,6 @@ def findLayer(image):
     return out
 
 
-# Part two
 def decodeImage(image):
     layer = []
     message = np.full((HEIGHT, WIDTH), 'O')
@@ -57,9 +55,9 @@ def decodeImage(image):
 
     np.savetxt(os.path.join(sys.path[0], "out.txt"), message, fmt='%s')
 
-
-with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
-    image = f.read()
-    print(findLayer(image))
-    decodeImage(image)
-    webbrowser.open(os.path.join(sys.path[0], "out.txt"))
+if __name__ == "__main__":
+    with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
+        image = f.read()
+        print(findLayer(image))
+        decodeImage(image)
+        webbrowser.open(os.path.join(sys.path[0], "out.txt"))

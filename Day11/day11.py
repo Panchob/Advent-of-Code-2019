@@ -4,85 +4,81 @@ from tkinter import *
 # Add the parent directory to the path
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from intcode.intCode_compiler import Intcode
+from Intcode.Intcode import Intcode
 
+class Painter(Intcode):
+    def __init__(self, file):
+        self.__canvas = {}
+        self.__position = (50, 50) 
+        self.__direction = "U"
+        Intcode.__init__(self, file)
 
-def paint(firstInput, part2):
-    paints = {}
-    # Yup, pretty straightforward, but hey, that works.
-    direction = ["U", "R", "D", "L"]
+    def paints(self, firstInput):
+        input = firstInput
+        while not self.isStopped():
+            self.run(input)
+            out = self.getOutput()
+            x, y = self.__position
+            self.__canvas[(x, y)] = 0 if out[0] == 0 else 1
+            self.turn(out[1])
+            x, y = self.move()
 
-    angle = 0
-    # Starting position
-    x = 50
-    y = 50
-
-    input = firstInput
-    intCode = Intcode("input.txt")
-    while not intCode.stopped:
-        # First output
-        out = intCode.run(input)
-        if out == 0:
-            paints[(x, y)] = 0
-        else:
-            paints[(x, y)] = 1
-
-        # Second output
-        out = intCode.run(input)
-
-        # I just use an array containing the directions,
-        # instead of implementing real angles
-        # (I did that enough in day 10...).
-        if out == 0:
-            if angle + 1 == len(direction):
-                # Aka poor's man linked list
-                angle = 0
+            if (x, y) in self.__canvas:
+                input = self.__canvas[(x, y)]
             else:
-                angle += 1
+                input = 0
+    
+
+    def turn(self, instruction):
+        directions = ["U", "R", "D", "L"]
+        i = directions.index(self.__direction)
+        instruction = -1 if instruction == 0 else instruction
+
+        if i + instruction != 0:
+            self.__direction = directions[(i + instruction) % len(directions)]
         else:
-            if angle - 1 < 0:
-                angle = 3
-            else:
-                angle -= 1
+            self.__direction = 'U'
 
-        # Here I increment by a little more of the width of the
-        # squares so it's easily readable. It's change nothing for part 1
-        # since its stored as is in the dictionary
-        if direction[angle] == "U":
-            y -= 25
-        elif direction[angle] == "R":
-            x -= 25
-        elif direction[angle] == "D":
-            y += 25
-        elif direction[angle] == "L":
-            x += 25
 
-        if (x, y) in paints:
-            input = paints[(x, y)]
-        else:
-            input = 0
+    def move(self):
+        angles = {
+            "U": (0, -25),
+            "D":  (0, 25),
+            "L": (-25, 0),
+            "R": (25, 0)
+        }
+        x, y = self.__position
+        incX, incY = angles[self.__direction]
+        x += incX
+        y += incY
+        self.__position = (x, y)
+        return (x, y)
 
-    return paints
+
+    def numberOfPanelPainted(self):
+        return len(self.__canvas)
+    
+
+    def printMessage(self):
+        tk = Tk()
+        tk.title("Points")
+        c = Canvas(tk, width=1150, height=275)
+        c.pack(expand=1, fill=BOTH)
+
+        for k, v in self.__canvas.items():
+            x, y = k
+            if v == 1:
+                c.create_rectangle(x, y, x + 20, y + 20, outline="#fb0", fill="#fb0")
+
+        mainloop()
 
 
 if __name__ == "__main__":
-    # Part 1
-    paints = paint(0, False)
-    print("PART 1: The robots moves", len(paints), "times")
+    painter = Painter("input.txt")
+    painter.paints(0)
+    print("Part 1: The robots painted", painter.numberOfPanelPainted(), "panels")
 
-    # Part 2
-    paints = paint(1, True)
-    canvas = Tk()
-    canvas.title("Points")
-    c = Canvas(canvas,
-               width=1150,
-               height=275)
-    c.pack(expand=1, fill=BOTH)
+    painter = Painter("input.txt")
+    painter.paints(1)
+    painter.printMessage()
 
-    for k, v in paints.items():
-        x, y = k
-        if v == 1:
-                c.create_rectangle(x, y, x + 20, y + 20,
-                                   outline="#fb0", fill="#fb0")
-
-    mainloop()

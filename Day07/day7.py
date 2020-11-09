@@ -18,7 +18,6 @@ class Amplifier(Intcode):
       return self.getOutput()[0]
 
 
-
 def startAmps(amplifiers):
    for amp in amplifiers:
       amp.runPhase()
