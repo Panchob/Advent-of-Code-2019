@@ -35,6 +35,7 @@ class Painter(Intcode):
         instruction = -1 if instruction == 0 else instruction
 
         if i + instruction != 0:
+            # Cycle trough the directions
             self.__direction = directions[(i + instruction) % len(directions)]
         else:
             self.__direction = 'U'

@@ -1,27 +1,27 @@
 from math import gcd
 
-
-DIMENSIONS = 3
 NUMBER_OF_STEPS = 1000
 
-# Part 1 functions
-def step(moons, nbOfSteps):
-    while nbOfSteps > 0:
+
+def updateSystem(moons, nbOfSteps):
+    for _ in range(nbOfSteps):
         for m in moons:
-            for other in moons:
+            others = filter(lambda x: x != m, moons)
+            for other in others:
                 m.changeVelocity(other)
-        nbOfSteps -= 1
         for m in moons:
             m.updatePosition()
 
+
 def separateAxis(moons):
-    result = []
-    for i in range(DIMENSIONS):
+    axes = []
+    for i in range(3):
         axis = []
         for m in moons:
-            axis.append(Moon(m.position[i], 0))
-        result.append(axis)
-    return result
+            axis.append(Moon([m.position[i]], [0]))
+        axes.append(axis)
+    return axes
+
 
 def totalEnergy(moons):
     total = 0
@@ -29,80 +29,53 @@ def totalEnergy(moons):
         total += m.energy()
     return total
 
-# Part 2 functions
-def repeatAfter(moons):
-    # Here is my marvelous way to snapshot my list.
-    comparator = [Moon(moons[0].position, 0), 
-                 Moon(moons[1].position, 0), 
-                 Moon(moons[2].position, 0) , 
-                 Moon(moons[3].position, 0)]
+
+def repeatAfter(axis):
+    positions = [a.position[0] for a in axis]
     repeated = False
     i = 1
 
     while not repeated:
-        for m in moons:
-                for other in moons:
-                    m.changeVelocityForOne(other)
-        for m in moons:
-            m.updateOnePosition()
-            
+        updateSystem(axis, 1)
         i += 1
-        if moons == comparator:
+        updatedPositions = [a.position[0] for a in axis]
+        if updatedPositions == positions:
             repeated = True
     return i
-            
-def allSystemRepeatAfter(moons):
+
+
+def allSystemRepeat(axes):
     cycles = []
     # For each sets of moons, find the cycle of x, y and z.
-    for m in moons:
-        cycles.append(repeatAfter(m))
+    for axis in axes:
+        cycles.append(repeatAfter(axis))
 
-    # Found on stack overflow by user Ananay Mital
     lcm = cycles[0]
     for i in cycles[1:]:
         lcm = int(lcm*i/gcd(lcm, i))
     return lcm
 
 
-# I initially created this class for dealing with 3 dimensions. I adapted it
-# to be able to take only one dimension.
 class Moon:
-    def __init__(self, position, velocity=[0,0,0]):
+    def __init__(self, position, velocity=[0, 0, 0]):
         self.position = position
-        if type(velocity) is list:
-            self.velocity = velocity[:]
-        else:
-            self.velocity = velocity
+        self.__dimension = len(position)
+        self.velocity = velocity[:]
     
-    # No need to check the velocity here, the result will be valid.
-    def __eq__(self, other):
-        return self.position == other.position
     
-    # Useful when debugging.
-    def __repr__(self):
-        return repr(self.position)
-
-    # Here are all the behavior described in the problem.
     def changeVelocity(self, other):
-        for i in range(DIMENSIONS):
+        for i in range(self.__dimension):
             if self.position[i] > other.position[i]:
                 self.velocity[i] -= 1
             elif self.position[i] < other.position[i]:
                 self.velocity[i] += 1
 
+
     def updatePosition(self):
-       for i in range(DIMENSIONS):
+       for i in range(self.__dimension):
             self.position[i] += self.velocity[i]
     
-    def changeVelocityForOne(self, other):
-        if self.position > other.position:
-            self.velocity -= 1
-        elif self.position < other.position:
-            self.velocity += 1
 
-    def updateOnePosition(self):
-        self.position += self.velocity
-    
     def energy(self):
         p = map(abs, self.position)
         v = map(abs, self.velocity)
@@ -110,23 +83,14 @@ class Moon:
 
 
 if __name__ == '__main__': 
-
-    # Part 1
     io = Moon([13, -13, -2])
     europa = Moon([16, 2, -15])
     ganymede = Moon([7, -18, -12])
     callisto = Moon([-3, -8, -8])
-    
     moons = [io, europa, ganymede, callisto]
-    step(moons, NUMBER_OF_STEPS)
-    print("Energy after", NUMBER_OF_STEPS,"steps:", totalEnergy(moons))
+    axes = separateAxis(moons[:])
 
-    # Part 2
-    io = Moon([13, -13, -2])
-    europa = Moon([16, 2, -15])
-    ganymede = Moon([7, -18, -12])
-    callisto = Moon([-3, -8, -8])
-    
-    # First separate each axis in their own list.
-    moons2 = separateAxis([io, europa, ganymede, callisto])
-    print("The moons cycle after:", allSystemRepeatAfter(moons2), "steps")
+    updateSystem(moons, NUMBER_OF_STEPS)
+
+    print("Energy after", NUMBER_OF_STEPS,"steps:", totalEnergy(moons))   
+    print("The moons cycle after:", allSystemRepeat(axes), "steps")

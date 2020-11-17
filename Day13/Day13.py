@@ -3,8 +3,7 @@ import sys
 import pygame
 # Add the parent directory to the path
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
-from intcode.intCode_compiler import Intcode
+from Intcode.Intcode import Intcode
 
 
 class Tile:
@@ -12,98 +11,113 @@ class Tile:
         self.x = x
         self.y = y
         self.id = id
+
+
+class BrickBreak(Intcode):
+    def __init__(self, file):
+        Intcode.__init__(self, file)
+        self.__tiles = []
+        self.__paddle = None
+        self.__ball = None
+        self.__score = 0
+
+
+    def render(self, input=None):
+        self.run(input)
+        self.__tiles = []
+        output = self.getOutput()
+        i = 0
+        while i < len(output):
+            self.__tiles.append(Tile(output[i], output[i + 1], output[i + 2]))
+            self.updateGame()
+            i += 3
     
 
-def createGame(intCode):
-    tiles = []
-    blocks = 0
-    tile = [0, 0, 0]
-
-    while not intCode.stopped and not intCode.waiting:
-        for i in range(3):
-            tile[i] = intCode.run()
-        if not intCode.waiting:
-            tiles.append(Tile(tile[0], tile[1], tile[2]))
-    return tiles
-
-def numberOfBlocks(tiles):
-    nBblocks = 0
-    for tile in tiles:
-        if tile.id == 2:
-            nBblocks += 1
-    return nBblocks
-
-if __name__ == '__main__': 
-    intCode = Intcode("input.txt")
-    pygame.init()
-
-    #Run the intCode to set the stage
-    game = createGame(intCode)
-
-    font = pygame.font.Font(None, 36)
-    # Set up the drawing window
-    screen = pygame.display.set_mode([1320, 600])
-
-    # Part 1
-    print("Number of starting blocks:", numberOfBlocks(game))
-
-    # Part 2
-    # Run until the user asks to quit
-    running = True
-    ball = 0
-    paddle = 0
-    score = 0
-    input = 0
-    screen.fill((0, 0, 0))
-    # TODO: Extract following code in a function
-    while running:
-
-        # Did the user click the window close button?
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        for tile in game:
-            if tile.x == -1 and tile.y == 0:
-                score = tile.id
-            elif tile.id == 0:
-                color = (0, 0, 0)
-            elif tile.id == 1:
-                color = (255, 255, 255)
-            elif tile.id == 2:
-                color = (245, 66, 99)
-            elif tile.id == 3:
-                paddle = tile.x
-                color = (255, 255, 255)
+    def updateGame(self):
+        for tile in self.__tiles:
+            if tile.id == 3:
+                self.__paddle = tile
             elif tile.id == 4:
-                    ball = tile.x
+                self.__ball = tile
+            elif tile.x == -1:
+                self.__score = tile.id
+
+
+    def countBlocks(self):
+        nBblocks = 0
+        for tile in self.__tiles:
+            if tile.id == 2:
+                nBblocks += 1
+        return nBblocks
+
+    
+    def playGame(self):
+        while True:
+            if self.__ball.x < self.__paddle.x:
+                input = -1
+            elif self.__ball.x > self.__paddle.x:
+                input = 1
+            else:
+                input = 0
+            
+            self.render(input)
+
+            if self.isStopped():
+                break
+
+        print(self.__score)
+    
+
+    def displayGame(self):
+        pygame.init()
+        font = pygame.font.Font(None, 36)
+        # Set up the drawing window
+        screen = pygame.display.set_mode([1320, 600])
+
+        # Run until the user asks to quit
+        running = True
+        input = 0
+        screen.fill((0, 0, 0))
+        
+        while running:
+            # Did the user click the window close button?
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                
+            for tile in self.__tiles:
+                if tile.id == 0:
+                    color = (0, 0, 0)
+                elif tile.id == 2:
+                    color = (245, 66, 99)
+                else:
                     color = (255, 255, 255)
 
-            pygame.draw.rect(screen, color, [tile.x*30, tile.y*30, 30, 30])
-            text = font.render(str(score), 1, color)
-            
-            textpos = text.get_rect(centerx=screen.get_width()/2)
-            # FIXME: The score stack onto the last one.
-            screen.blit(text, textpos)
+                pygame.draw.rect(screen, color, [tile.x*30, tile.y*30, 30, 30])
 
-        if ball < paddle:
+            if self.__ball.x < self.__paddle.x:
                 input = -1
-        elif ball > paddle:
-            input = 1
-        else:
-            input = 0
+            elif self.__ball.x > self.__paddle.x:
+                input = 1
+            else:
+                input = 0
             
-        intCode.setInput(input)
-        game = createGame(intCode)
+            self.render(input)
 
-        if intCode.stopped:
-            running = False
+            if brickBreak.isStopped():
+                running = False
 
-        # Flip the display
-        pygame.display.flip()
-        pygame.time.Clock().tick(150)
-    # FIXME: score is one short
-    print(score)
+            # Flip the display
+            pygame.display.flip()
+            pygame.time.Clock().tick(60)
+
+
+if __name__ == '__main__': 
+    brickBreak = BrickBreak("input.txt")
+    brickBreak.render()
+    print("Part 1:", brickBreak.countBlocks())
+    brickBreak.playGame()
+    
 
         
         

@@ -3,15 +3,14 @@ import sys
 from collections import defaultdict
 import math
 
-# TODO: rename variables that are only one letter to something better.
 
-# Dictionary with all components as key and their
+# Components as key and their
 # spares production as value.
 spares = {}
-# Dictionary with all components as key and the number they produce
+# Components as key and the number they produce
 # for each conversion.
 quantities = {}
-# Dictionary with all components as key and their recipe as a list for
+# Components as key and their recipe as a list for
 # a value.
 conversions = {}
 
@@ -77,7 +76,7 @@ def limitedOres(num):
             num += inc
     return num
 
-# TODO: comment on the parsing
+
 if __name__ == '__main__':
     with open(os.path.join(sys.path[0], "input.txt"), "r") as f:
         conversions = defaultdict(list)
